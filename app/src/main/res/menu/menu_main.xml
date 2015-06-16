@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/refresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:title="@string/refresh"
+        app:showAsAction="ifRoom|withText"></item>
+    <item
+        android:id="@+id/menu_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        app:showAsAction="never"
+        android:title="@string/menu_settings" />
+    <item
+        android:id="@+id/menu_about"
+        android:icon="@android:drawable/ic_menu_info_details"
+        app:showAsAction="never"
+        android:title="@string/about" />
+</menu>
