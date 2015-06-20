@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <include layout="@layout/toolbar" android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="4dp" >
+
+            <ImageView
+                android:id="@+id/detail_image"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="11dp"
+                android:padding="4dp"
+                android:src="@mipmap/ic_launcher" />
+
+            <TextView
+                android:id="@+id/detail_app_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:lineSpacingExtra="10dp"
+                android:lineSpacingMultiplier="0.4"
+                android:text="@string/about_me" />
+
+        </LinearLayout>
+        <View
+            android:id="@+id/separator0"
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:background="#f00" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/ViewInPlayStoreButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/view_in_play_store" />
+
+            <View
+                android:id="@+id/separator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:layout_below="@id/ViewInPlayStoreButton"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:background="#f00" />
+
+            <Spinner
+                android:id="@+id/languagesSpinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/ViewInBrowser"
+                android:layout_below="@id/separator"
+                android:layout_toLeftOf="@+id/ViewInBrowser"
+                android:layout_toStartOf="@+id/ViewInBrowser"
+                android:entries="@array/languages"
+                android:prompt="@string/choose_language" />
+
+            <Button
+                android:id="@+id/ViewInBrowser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/separator"
+                android:text="@string/view_in_browser" />
+
+            <View
+                android:id="@+id/separator2"
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:layout_below="@id/ViewInBrowser"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:background="#f00" />
+
+            <Button
+                android:id="@+id/amazon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/ViewInPlayStoreButton"
+                android:layout_toEndOf="@+id/ViewInPlayStoreButton"
+                android:text="Amazon" />
+
+            <Button
+                android:id="@+id/appBrain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/amazon"
+                android:layout_toEndOf="@+id/amazon"
+                android:text="AppBrain" />
+
+            <Button
+                android:id="@+id/OpenAppInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/separator2"
+                android:text="@string/open_app_info" />
+
+            <Button
+                android:id="@+id/CertificateInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/certificate_title"
+                android:layout_below="@+id/separator2"
+                android:layout_toRightOf="@+id/OpenAppInfo"
+                android:layout_toEndOf="@+id/OpenAppInfo" />
+
+            <View
+                android:id="@+id/separator3"
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:layout_below="@id/OpenAppInfo"
+                android:layout_marginBottom="4dp"
+                android:layout_marginTop="4dp"
+                android:background="#f00" />
+
+            <Button
+                android:id="@+id/WhatsNew"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/whats_new"
+                android:layout_below="@+id/separator3" />
+
+        </RelativeLayout>
+    </LinearLayout>
+</ScrollView>

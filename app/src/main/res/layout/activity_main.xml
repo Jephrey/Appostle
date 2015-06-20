@@ -12,14 +12,32 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/app_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        <include layout="@layout/toolbar" />
 
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <fragment
+                android:id="@+id/listFragment"
+                class="nl.jalava.appostle.AppListFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                tools:layout="@layout/app_list" />
+
+            <fragment
+                android:id="@+id/app_detail"
+                class="nl.jalava.appostle.AppDetailFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                tools:layout="@layout/app_details" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <android.support.design.widget.NavigationView
