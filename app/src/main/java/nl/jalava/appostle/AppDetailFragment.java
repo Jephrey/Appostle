@@ -256,6 +256,7 @@ public class AppDetailFragment extends Fragment {
                 }
             }  catch(Throwable t) {
                 t.printStackTrace();
+                buffer.append(getString(R.string.unable_to_download_text));
             }
             return buffer.toString();
         }
