@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Appostle</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="menu_sort_order">Sort Order</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
     <string name="menu_settings">Settings</string>
     <string name="about">About</string>
     <string name="refresh">Refresh</string>
-    <string name="about_me">©2013-2015 Jeffrey Rusterholz</string>
+    <string name="about_me">©2013–2015 Jeffrey Rusterholz</string>
     <string name="about_license" >Appostle is Open Source under the Apache License, Version 2.0</string>
     <string name="view_in_play_store">Play Store</string>
     <string name="choose_language">Choose language</string>
@@ -18,10 +17,10 @@
     <string name="certificate_info" formatted="false">Certificate for: %s\n\nIssued by: %s\n\nValid from %s to %s\n\nSerial No: %s\n\nGenerated with %s.</string>
     <string name="certificate_error">Error retrieving certificate info.\nMessage: </string>
     <string name="certificate_title">Certificate Info</string>
-    <string name="sort_title">Choose a sort method</string>
-    <string name="preftitle">Applications</string>
-    <string name="prefdesc">Settings for the application list</string>
-    <string name="sortbydatetime_title">Sort method</string>
-    <string name="sortbydatetime_summary">Choose by date/time or name</string>
+    <string name="sort_title">Choose a Sort Order</string>
     <string name="whats_new">What\'s New</string>
+    <string name="sort_application_list_by">Sort application list by:</string>
+    <string name="sort_direction">Sort direction:</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

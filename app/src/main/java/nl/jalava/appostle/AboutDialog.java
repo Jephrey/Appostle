@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.widget.TextView;
 
-public class AboutDialog extends Dialog {
+class AboutDialog extends Dialog {
     private static Context context = null;
 
     public AboutDialog(Context context) {

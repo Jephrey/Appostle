@@ -20,7 +20,7 @@ import android.graphics.drawable.Drawable;
 /**
  * Created by Jeffrey on 31-10-2014.
  */
-public class AppInfo {
+class AppInfo {
     public Drawable icon;
     public String name;
     public String date;

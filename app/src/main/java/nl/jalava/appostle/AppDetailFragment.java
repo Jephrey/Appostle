@@ -30,7 +30,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -186,12 +185,16 @@ public class AppDetailFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "Opening in browser: " + package_name);
-                Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?" +
-                                "id=" + package_name +
-                                "&hl=" + curLC));
-                //browser.makeMainSelectorActivity(Intent.ACTION_VIEW, Intent.CATEGORY_APP_BROWSER);
-                startActivity(browser);
+                openAppInBrowser(false);
+            }
+        });
+
+        // Long click to show alternative options to launch.
+        button.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                openAppInBrowser(true);
+                return true;
             }
         });
 
@@ -225,6 +228,16 @@ public class AppDetailFragment extends Fragment {
 
         return view;
     }
+
+    private void openAppInBrowser(boolean ChooseBrowser) {
+        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?" +
+                "id=" + package_name +
+                "&hl=" + curLC));
+        if (ChooseBrowser) {
+            browser = Intent.createChooser(browser, getActivity().getString(R.string.app_name));
+        }
+        startActivity(browser);
+     }
 
     /**
      * Download the app description from the Play Store.
@@ -274,6 +287,11 @@ public class AppDetailFragment extends Fragment {
         ed.apply();
     }
 
+    /**
+     * Fill in the details.
+     * @param app_package Package name
+     * @param app_date Package date
+     */
     public void fillDetail(String app_package, String app_date) {
         package_name = app_package;
         PackageManager pm = getView().getContext().getPackageManager();
@@ -316,16 +334,20 @@ public class AppDetailFragment extends Fragment {
     }
 
     // This code is from: http://stackoverflow.com/questions/4600740/getting-app-icon-in-android
-    public Drawable getFullResDefaultActivityIcon() {
+    private Drawable getFullResDefaultActivityIcon() {
         return getFullResIcon(Resources.getSystem(), android.R.mipmap.sym_def_app_icon);
     }
 
-    public Drawable getFullResIcon(Resources resources, int iconId) {
+    private Drawable getFullResIcon(Resources resources, int iconId) {
         Drawable d;
         try {
             ActivityManager activityManager = (ActivityManager) view.getContext().getSystemService(Context.ACTIVITY_SERVICE);
             int iconDpi = activityManager.getLauncherLargeIconDensity();
-            d = resources.getDrawableForDensity(iconId, iconDpi);
+            if (Build.VERSION.SDK_INT >= 22) {
+                d = resources.getDrawableForDensity(iconId, iconDpi, null);
+            } else {
+                d = resources.getDrawableForDensity(iconId, iconDpi);
+            }
         } catch (Resources.NotFoundException e) {
             d = null;
         }
@@ -352,7 +374,7 @@ public class AppDetailFragment extends Fragment {
         return getFullResIcon(info.activityInfo);
     }
 
-    public Drawable getFullResIcon(ActivityInfo info) {
+    private Drawable getFullResIcon(ActivityInfo info) {
         Resources resources;
         try {
             resources = view.getContext().getPackageManager().getResourcesForApplication(info.applicationInfo);

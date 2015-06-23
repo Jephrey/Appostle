@@ -28,7 +28,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -44,7 +43,9 @@ import java.util.Vector;
 
 public class AppListFragment extends Fragment {
     final static String TAG = "APPLIST";
-    public final static String PREFS_APP_TYPE = "APP_TYPE";
+    public final static String PREFS_APP_TYPE = "APP_TYPE"; // 0 = installed, 1 = system, 2 = all
+    public final static String PREFS_APP_SORT = "APP_SORT"; // 0 = date, 1 = alpha
+    public final static String PREFS_APP_SORT_DIRECTION = "APP_SORT_DIRECTION"; // 0 = desc, 1 = asc.
 
     // Listener.
     private OnItemSelectedListener listener;
@@ -61,16 +62,22 @@ public class AppListFragment extends Fragment {
     private TextView progress_loading;
     private Context mContext;
     private PackageManager pm;
-    private AppInfoAdapter adapter;
-    private int curType;              // Current app type.
+    private AppInfoAdapter mAppInfoAdapter;
+
     private SharedPreferences mPrefs;
+    private int mCurrentAppType;              // Current app type.
+    private int mCurrentSort;
+    private int mCurrentSortDirection;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mPrefs = getActivity().getSharedPreferences("AppListFragment", Context.MODE_PRIVATE);
-        curType = mPrefs.getInt(PREFS_APP_TYPE, 0);
+        mCurrentAppType = mPrefs.getInt(PREFS_APP_TYPE, 0); // Installed
+        mCurrentSort = mPrefs.getInt(PREFS_APP_SORT, 0);    // Date
+        mCurrentSortDirection = mPrefs.getInt(PREFS_APP_SORT_DIRECTION, 1); // Descending
     }
 
     @Override
@@ -78,7 +85,9 @@ public class AppListFragment extends Fragment {
         super.onPause();
 
         SharedPreferences.Editor ed = mPrefs.edit();
-        ed.putInt(PREFS_APP_TYPE, curType);
+        ed.putInt(PREFS_APP_TYPE, mCurrentAppType);
+        ed.putInt(PREFS_APP_SORT, mCurrentSort);
+        ed.putInt(PREFS_APP_SORT_DIRECTION, mCurrentSortDirection);
         ed.apply();
     }
 
@@ -138,24 +147,31 @@ public class AppListFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.refresh:
-                new UpdateAppList().execute();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
-    }
-
     public void doUpdate(int currentType) {
         if (currentType >= 0) {
-            curType = currentType;
+            mCurrentAppType = currentType;
         }
         new UpdateAppList().execute();
+    }
+
+    public int getCurrentSort() {
+        return mCurrentSort;
+    }
+
+    public void setCurrentSort(int CurrentSort) {
+        this.mCurrentSort = CurrentSort;
+    }
+
+    public int getCurrentSortDirection() {
+        return mCurrentSortDirection;
+    }
+
+    public void setCurrentSortDirection(int CurrentSortDirection) {
+        this.mCurrentSortDirection = CurrentSortDirection;
+    }
+
+    public void sortAppList() {
+        SortAppInfoAdapter();
     }
 
     private void updateApps() {
@@ -172,7 +188,7 @@ public class AppListFragment extends Fragment {
             }
 
             // Which apps?
-            switch (curType) {
+            switch (mCurrentAppType) {
                 case 0:	if ((ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0) continue; // Skip system apps.
                     break;
                 case 1: if ((ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0) continue; // Skip installed apps.
@@ -180,8 +196,6 @@ public class AppListFragment extends Fragment {
             }
 
             String name = (String) pm.getApplicationLabel(ai);
-
-            String appFile = ai.sourceDir;
 
             // Get last updated date.
             long updated = pi.lastUpdateTime;
@@ -199,20 +213,28 @@ public class AppListFragment extends Fragment {
             app_data.add(app);
         }
 
-        // Copy the Vector into the array.
-        AppInfo[] app_data2 = new AppInfo[app_data.size()];
-        app_data.copyInto(app_data2);
+        mAppInfoAdapter = new AppInfoAdapter(mContext, R.layout.app_row, app_data);
+        SortAppInfoAdapter();
+    }
 
-        adapter = new AppInfoAdapter(mContext, R.layout.app_row, app_data2);
-
-        // Sort array by date descending.
-        adapter.sort(new Comparator<AppInfo>() {
+    private void SortAppInfoAdapter() {
+        // Sort array by date/name descending/ascending.
+        mAppInfoAdapter.sort(new Comparator<AppInfo>() {
             public int compare(AppInfo app1, AppInfo app2) {
-                int comp = 0;
-                if (app1.lastUpdateTime > app2.lastUpdateTime) {
-                    comp = -1;
-                } else if (app1.lastUpdateTime < app2.lastUpdateTime) {
-                    comp = 1;
+                int comp;
+
+                if (mCurrentSort == 0) {
+                    if (app1.lastUpdateTime > app2.lastUpdateTime) {
+                        comp = mCurrentSortDirection == 0 ? 1 : -1;
+                    } else  {
+                        comp = mCurrentSortDirection == 0 ? -1 : 1;
+                    }
+                } else {
+                    if (app1.name.compareToIgnoreCase(app2.name) > 0  ) {
+                        comp = mCurrentSortDirection == 0 ? 1 : -1;
+                    } else  {
+                        comp = mCurrentSortDirection == 0 ? -1 : 1;
+                    }
                 }
                 return comp;
             }
@@ -238,7 +260,7 @@ public class AppListFragment extends Fragment {
             super.onPostExecute(result);
             progress.setVisibility(View.GONE);
             progress_loading.setVisibility(View.GONE);
-            appList.setAdapter(adapter);
+            appList.setAdapter(mAppInfoAdapter);
 
             // Fill the detail view if available.
             FragmentManager fm = getFragmentManager();
@@ -246,8 +268,8 @@ public class AppListFragment extends Fragment {
                 AppDetailFragment det;
                 det = (AppDetailFragment) fm.findFragmentById(R.id.app_detail);
                 if ((det != null) && det.isInLayout()) {
-                    if (adapter.getCount() > 0 ) {
-                        det.fillDetail(adapter.data[0].packageName, adapter.data[0].date);
+                    if (mAppInfoAdapter.getCount() > 0 ) {
+                        det.fillDetail(mAppInfoAdapter.data.elementAt(0).packageName, mAppInfoAdapter.data.elementAt(0).date);
                     }
                 }
             }

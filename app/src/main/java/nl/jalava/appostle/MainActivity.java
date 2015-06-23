@@ -19,14 +19,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.internal.widget.AdapterViewCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,14 +31,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener,  AppListFragment.OnItemSelectedListener {
-
+public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener,  AppListFragment.OnItemSelectedListener, SortDialog.SortDialogListener  {
     private Context mContext;
-
-    private Toolbar mToolbar;
     private NavigationView mDrawer;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
+
      @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +44,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         mContext = getBaseContext();
 
-        mToolbar = (Toolbar) findViewById(R.id.app_bar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(mToolbar);
 
         // Spinner for choosing application type.
@@ -107,11 +102,10 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        AppListFragment fragment = (AppListFragment) getFragmentManager().findFragmentById(R.id.listFragment);
         switch (id) {
             case R.id.refresh:
-                AppListFragment fragment = (AppListFragment) getFragmentManager().findFragmentById(R.id.listFragment);
-                if (fragment != null && fragment.isVisible()) {
+                 if (fragment != null && fragment.isVisible()) {
                       fragment.doUpdate(-1);
                 }
                 break;
@@ -122,12 +116,22 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                 about.setCanceledOnTouchOutside(true);
                 about.show();
                 break;
-            case R.id.menu_settings:
-                //startActivity(new Intent(this, Preferences.class));
-                return (true);
+            case R.id.menu_sortorder:
+                if (fragment != null) {
+                    showSortDialog(fragment);
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showSortDialog(AppListFragment fragment) {
+        FragmentManager fm = getSupportFragmentManager();
+
+        SortDialog sortDialog = SortDialog.newInstance(fragment.getCurrentSort(), fragment.getCurrentSortDirection());
+        sortDialog.show(fm, "Hello");
+        // See: onFinishSortDialog()
     }
 
     @Override
@@ -147,6 +151,16 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
             extra.putString(AppDetailActivity.PACKAGE_DATE, app.date);
             intent.putExtras(extra);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    public void onFinishSortDialog(int sort, int dir) {
+        AppListFragment fragment = (AppListFragment) getFragmentManager().findFragmentById(R.id.listFragment);
+        if (fragment != null) {
+            fragment.setCurrentSort(sort);
+            fragment.setCurrentSortDirection(dir);
+            fragment.sortAppList();
         }
     }
 }

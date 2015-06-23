@@ -1,6 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sort_application_list_by"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" />
+
+    <Spinner
+        android:id="@+id/sort_type_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:spinnerMode="dropdown"
+        android:layout_below="@+id/textView1"
+        android:layout_alignLeft="@+id/textView1"
+        android:layout_alignStart="@+id/textView1"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sort_direction"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_below="@+id/sort_type_spinner"
+        android:layout_alignLeft="@+id/sort_type_spinner"
+        android:layout_alignStart="@+id/sort_type_spinner"
+        android:layout_marginTop="8dp" />
+
+    <Spinner
+        android:id="@+id/sort_direction_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:layout_below="@+id/textView2"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_alignRight="@+id/sort_type_spinner"
+        android:layout_alignEnd="@+id/sort_type_spinner"
+        android:layout_marginTop="4dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ok"
+        android:id="@+id/ok_button"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_alignTop="@+id/cancelButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:id="@+id/cancelButton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/sort_direction_spinner"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="4dp" />
+
+</RelativeLayout>

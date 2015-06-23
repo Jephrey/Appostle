@@ -26,14 +26,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class AppInfoAdapter extends ArrayAdapter<AppInfo> {
+import java.util.Vector;
+
+class AppInfoAdapter extends ArrayAdapter<AppInfo> {
     private final static String TAG = "APPINFO_ADAPTER";
 
-    Context context;
-    int layoutResourceId;
-    AppInfo data[] = null;
+    private final Context context;
+    private int layoutResourceId;
+    final Vector<AppInfo> data;
 
-    public AppInfoAdapter(Context context, int layoutResourceId, AppInfo[] data) {
+    public AppInfoAdapter(Context context, int layoutResourceId, Vector<AppInfo> data) {
         super(context, layoutResourceId, data);
         this.context = context;
         this.layoutResourceId = layoutResourceId;
@@ -44,7 +46,7 @@ public class AppInfoAdapter extends ArrayAdapter<AppInfo> {
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         AppHolder holder;
-        AppInfo app = data[position];
+        AppInfo app = data.elementAt(position);
 
         if(row == null)
         {

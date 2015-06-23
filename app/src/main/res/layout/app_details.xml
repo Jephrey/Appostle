@@ -81,7 +81,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:layout_below="@id/separator"
-                android:text="@string/view_in_browser" />
+                android:text="@string/view_in_browser"
+                android:longClickable="true" />
 
             <View
                 android:id="@+id/separator2"
