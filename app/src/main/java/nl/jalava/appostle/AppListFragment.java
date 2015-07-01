@@ -26,14 +26,22 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Comparator;
@@ -46,16 +54,17 @@ public class AppListFragment extends Fragment {
     public final static String PREFS_APP_TYPE = "APP_TYPE"; // 0 = installed, 1 = system, 2 = all
     public final static String PREFS_APP_SORT = "APP_SORT"; // 0 = date, 1 = alpha
     public final static String PREFS_APP_SORT_DIRECTION = "APP_SORT_DIRECTION"; // 0 = desc, 1 = asc.
+    public final static String PREFS_SEARCH_EDIT_OPEN = "PREFS_SEARCH_EDIT_OPEN";
+    public final static String PREFS_SEARCH_EDIT_TEXT = "PREFS_SEARCH_EDIT_TEXT";
+    public final static String PREFS_SEARCH_EDIT_POSITION = "PREFS_SEARCH_EDIT_POSITION";
 
     // Listener.
     private OnItemSelectedListener listener;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
-    // Interface for communication with listener.
-    public interface OnItemSelectedListener {
-        void onAppSelected(AppInfo app);
-    }
+    private EditText mSearchText;
+    private boolean mShowProgress;
+    private TextInputLayout mSearchEdit;
 
     private ListView appList;
     private ProgressBar progress;
@@ -68,7 +77,9 @@ public class AppListFragment extends Fragment {
     private int mCurrentAppType;              // Current app type.
     private int mCurrentSort;
     private int mCurrentSortDirection;
-
+    private boolean mSearchEditOpen;
+    private String mSearchEditText;
+    private int mSearchEditTextPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +89,10 @@ public class AppListFragment extends Fragment {
         mCurrentAppType = mPrefs.getInt(PREFS_APP_TYPE, 0); // Installed
         mCurrentSort = mPrefs.getInt(PREFS_APP_SORT, 0);    // Date
         mCurrentSortDirection = mPrefs.getInt(PREFS_APP_SORT_DIRECTION, 1); // Descending
+        mSearchEditOpen = mPrefs.getBoolean(PREFS_SEARCH_EDIT_OPEN, false); // No search text visible.
+        mSearchEditText = mPrefs.getString(PREFS_SEARCH_EDIT_TEXT, "");
+        mSearchEditTextPosition = mPrefs.getInt(PREFS_SEARCH_EDIT_POSITION, 0);
+        mShowProgress = true;
     }
 
     @Override
@@ -85,14 +100,18 @@ public class AppListFragment extends Fragment {
         super.onPause();
 
         SharedPreferences.Editor ed = mPrefs.edit();
-        ed.putInt(PREFS_APP_TYPE, mCurrentAppType);
-        ed.putInt(PREFS_APP_SORT, mCurrentSort);
-        ed.putInt(PREFS_APP_SORT_DIRECTION, mCurrentSortDirection);
-        ed.apply();
+
+        ed.putInt(PREFS_APP_TYPE, mCurrentAppType)
+        .putInt(PREFS_APP_SORT, mCurrentSort)
+        .putInt(PREFS_APP_SORT_DIRECTION, mCurrentSortDirection)
+        .putBoolean(PREFS_SEARCH_EDIT_OPEN, mSearchEditOpen)
+        .putString(PREFS_SEARCH_EDIT_TEXT, mSearchEditText)
+        .putInt(PREFS_SEARCH_EDIT_POSITION, mSearchText.getSelectionStart())
+        .apply();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,  Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.app_list, container, false);
         appList = (ListView) view.findViewById(R.id.listView1);
         progress = (ProgressBar) view.findViewById(R.id.progressBar);
@@ -118,10 +137,67 @@ public class AppListFragment extends Fragment {
 
         // Swipe to refresh.
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_apps);
-        mSwipeRefreshLayout.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 new UpdateAppList().execute();
+            }
+        });
+
+        mSearchEdit = (TextInputLayout) view.findViewById(R.id.search_layout);
+
+        // Restore the last visibility state of the text edit.
+        if (mSearchEditOpen)
+            mSearchEdit.setVisibility(View.VISIBLE);
+        else
+            mSearchEdit.setVisibility(View.GONE);
+
+        mSearchText = (EditText) view.findViewById(R.id.search_app_edit);
+
+        // Restore text and cursor position.
+        mSearchText.setText(mSearchEditText);
+        mSearchText.setSelection(mSearchEditTextPosition);
+
+        mSearchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (mAppInfoAdapter != null) mAppInfoAdapter.getFilter().filter(s);
+                mSearchEditText = s.toString();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+        });
+
+
+        // Activate keyboard if search text edit is opened.
+        // Close if no focus.
+        mSearchText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    // Open keyboard
+                    ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(v,
+                            InputMethodManager.SHOW_FORCED);
+                } else {
+                    // Close keyboard.
+                    ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
+                            v.getWindowToken(), 0);
+                }
+            }
+        });
+
+        // Clear text button.
+        Button clear = (Button) view.findViewById(R.id.search_clear_button);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchText.setText("");
             }
         });
 
@@ -139,10 +215,8 @@ public class AppListFragment extends Fragment {
             }
         });
 
-
         pm = mContext.getPackageManager();
-
-        new UpdateAppList().execute();
+        doUpdate(-1);
 
         return view;
     }
@@ -152,6 +226,25 @@ public class AppListFragment extends Fragment {
             mCurrentAppType = currentType;
         }
         new UpdateAppList().execute();
+    }
+
+    public void startSearch() {
+        if (mSearchEdit.getVisibility() == View.GONE) {
+            mSearchEdit.setVisibility(View.VISIBLE);
+            mSearchText.requestFocus();
+            mSearchEditOpen = true;
+        } else {
+            // Remove search edit. Reload the app list.
+            mSearchEdit.setVisibility(View.GONE);
+            mSearchEditOpen = false;
+            //mSearchText.setText("");
+            //doUpdate(-1);
+        }
+    }
+
+    // Interface for communication with listener.
+    public interface OnItemSelectedListener {
+        void onAppSelected(AppInfo app);
     }
 
     public int getCurrentSort() {
@@ -179,7 +272,7 @@ public class AppListFragment extends Fragment {
         List<PackageInfo> apps = pm.getInstalledPackages(0);
         Vector<AppInfo> app_data = new Vector<>();
 
-        for (PackageInfo pi: apps) {
+        for (PackageInfo pi : apps) {
             ApplicationInfo ai;
             try {
                 ai = pm.getApplicationInfo(pi.packageName, 0);
@@ -189,9 +282,13 @@ public class AppListFragment extends Fragment {
 
             // Which apps?
             switch (mCurrentAppType) {
-                case 0:	if ((ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0) continue; // Skip system apps.
+                case 0:
+                    if ((ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+                        continue; // Skip system apps.
                     break;
-                case 1: if ((ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0) continue; // Skip installed apps.
+                case 1:
+                    if ((ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0)
+                        continue; // Skip installed apps.
                     break;
             }
 
@@ -226,13 +323,13 @@ public class AppListFragment extends Fragment {
                 if (mCurrentSort == 0) {
                     if (app1.lastUpdateTime > app2.lastUpdateTime) {
                         comp = mCurrentSortDirection == 0 ? 1 : -1;
-                    } else  {
+                    } else {
                         comp = mCurrentSortDirection == 0 ? -1 : 1;
                     }
                 } else {
-                    if (app1.name.compareToIgnoreCase(app2.name) > 0  ) {
+                    if (app1.name.compareToIgnoreCase(app2.name) > 0) {
                         comp = mCurrentSortDirection == 0 ? 1 : -1;
-                    } else  {
+                    } else {
                         comp = mCurrentSortDirection == 0 ? -1 : 1;
                     }
                 }
@@ -251,8 +348,10 @@ public class AppListFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progress.setVisibility(View.VISIBLE);
-            progress_loading.setVisibility(View.VISIBLE);
+            if (mShowProgress) {
+                progress.setVisibility(View.VISIBLE);
+                progress_loading.setVisibility(View.VISIBLE);
+            }
         }
 
         @Override
@@ -268,13 +367,18 @@ public class AppListFragment extends Fragment {
                 AppDetailFragment det;
                 det = (AppDetailFragment) fm.findFragmentById(R.id.app_detail);
                 if ((det != null) && det.isInLayout()) {
-                    if (mAppInfoAdapter.getCount() > 0 ) {
-                        det.fillDetail(mAppInfoAdapter.data.elementAt(0).packageName, mAppInfoAdapter.data.elementAt(0).date);
+                    if (mAppInfoAdapter.getCount() > 0) {
+                        det.fillDetail(mAppInfoAdapter.mData.elementAt(0).packageName, mAppInfoAdapter.mData.elementAt(0).date);
                     }
                 }
             }
 
             mSwipeRefreshLayout.setRefreshing(false);
+
+            // Activate any search text/filter.
+            if (!mSearchEditText.isEmpty()) {
+                if (mAppInfoAdapter != null) mAppInfoAdapter.getFilter().filter(mSearchEditText);
+            }
         }
     }
 

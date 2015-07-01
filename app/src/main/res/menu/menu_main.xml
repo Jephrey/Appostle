@@ -12,6 +12,11 @@
         app:showAsAction="ifRoom|withText"
         android:title="@string/menu_sort_order" />
     <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+        app:showAsAction="ifRoom|withText"
+        android:title="@string/search_text" />
+    <item
         android:id="@+id/menu_about"
         android:icon="@android:drawable/ic_menu_info_details"
         app:showAsAction="never"

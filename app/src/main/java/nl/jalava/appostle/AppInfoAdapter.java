@@ -23,30 +23,97 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Vector;
 
-class AppInfoAdapter extends ArrayAdapter<AppInfo> {
+class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
     private final static String TAG = "APPINFO_ADAPTER";
 
     private final Context context;
     private int layoutResourceId;
-    final Vector<AppInfo> data;
+    public Vector<AppInfo> mData;
+    public Vector<AppInfo> mDataOriginal;
 
     public AppInfoAdapter(Context context, int layoutResourceId, Vector<AppInfo> data) {
         super(context, layoutResourceId, data);
         this.context = context;
         this.layoutResourceId = layoutResourceId;
-        this.data = data;
+        this.mData = data;
+        this.mDataOriginal = null;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                final FilterResults results = new FilterResults();
+
+                if (mDataOriginal == null) mDataOriginal = (Vector) mData.clone();
+                mData.clear();
+
+                if (constraint == null || constraint.length() == 0) {
+                    results.values = mDataOriginal;
+                    results.count = mDataOriginal.size();
+                }
+                else {
+                    Vector<AppInfo> apps = new Vector<>();
+                    String filter = constraint.toString().toUpperCase();
+                    AppInfo clone = null;
+
+                    for (AppInfo app: mDataOriginal) {
+                        if (app.name.toUpperCase().contains(filter)) {
+                            try {
+                                clone = (AppInfo) app.clone();
+                            } catch (CloneNotSupportedException e) {
+                                e.printStackTrace();
+                            }
+
+                            // Find the position of the search text.
+                            String name = clone.name.toUpperCase();
+                            int n = name.indexOf(filter);
+
+                            // Split the app name.
+                            String left = app.name.substring(0, n);
+                            String mid = app.name.substring(n, n + filter.length());
+                            String right = app.name.substring(n + filter.length(), app.name.length());
+
+                            // Highlight the found text. Use color from resource.
+                            int highlight = context.getResources().getColor(R.color.colorAccent);
+                            String сolorString = String.format("%X", highlight).substring(2);
+                            clone.name = left + String.format("<font color=\"#%s\">" + mid + "</font>", сolorString) + right;
+
+                            apps.add(clone);
+                        }
+                    }
+                    results.values = apps.clone();
+                    results.count = apps.size();
+                }
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                for (AppInfo app : (Vector<AppInfo>) results.values) {
+                    mData.add(app);
+                }
+                notifyDataSetChanged();
+            }
+        };
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         AppHolder holder;
-        AppInfo app = data.elementAt(position);
+
+        if (position >= mData.size()) return row;
+        AppInfo app = mData.elementAt(position);
 
         if(row == null)
         {

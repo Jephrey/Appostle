@@ -20,7 +20,7 @@ import android.graphics.drawable.Drawable;
 /**
  * Created by Jeffrey on 31-10-2014.
  */
-class AppInfo {
+class AppInfo implements Cloneable {
     public Drawable icon;
     public String name;
     public String date;
@@ -35,5 +35,9 @@ class AppInfo {
         this.packageName = "";
         this.date = "";
         this.lastUpdateTime = 0;
+    }
+
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

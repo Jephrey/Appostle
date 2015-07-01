@@ -356,25 +356,6 @@ public class AppDetailFragment extends Fragment {
         return (d != null) ? d : getFullResDefaultActivityIcon();
     }
 
-    public Drawable getFullResIcon(String packageName, int iconId) {
-        Resources resources;
-        try {
-            resources = view.getContext().getPackageManager().getResourcesForApplication(packageName);
-        } catch (PackageManager.NameNotFoundException e) {
-            resources = null;
-        }
-        if (resources != null) {
-            if (iconId != 0) {
-                return getFullResIcon(resources, iconId);
-            }
-        }
-        return getFullResDefaultActivityIcon();
-    }
-
-    public Drawable getFullResIcon(ResolveInfo info) {
-        return getFullResIcon(info.activityInfo);
-    }
-
     private Drawable getFullResIcon(ActivityInfo info) {
         Resources resources;
         try {
@@ -441,7 +422,7 @@ public class AppDetailFragment extends Fragment {
         try {
             c = (X509Certificate) cf.generateCertificate(input);
 
-            certinf = getResources().getString(R.string.certificate_info,
+            certinf = getString(R.string.certificate_info,
                     c.getSubjectDN(),
                     c.getIssuerDN(),
                     c.getNotBefore(),

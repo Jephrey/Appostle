@@ -121,6 +121,11 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                     showSortDialog(fragment);
                 }
                 break;
+            case R.id.menu_search:
+                if (fragment != null) {
+                    fragment.startSearch();
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
