@@ -47,6 +47,7 @@ class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Filter getFilter() {
         return new Filter() {
 
@@ -64,7 +65,7 @@ class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
                 else {
                     Vector<AppInfo> apps = new Vector<>();
                     String filter = constraint.toString().toUpperCase();
-                    AppInfo clone = null;
+                    AppInfo clone;
 
                     for (AppInfo app: mDataOriginal) {
                         if (app.name.toUpperCase().contains(filter)) {
@@ -72,6 +73,7 @@ class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
                                 clone = (AppInfo) app.clone();
                             } catch (CloneNotSupportedException e) {
                                 e.printStackTrace();
+                                continue;
                             }
 
                             // Find the position of the search text.
