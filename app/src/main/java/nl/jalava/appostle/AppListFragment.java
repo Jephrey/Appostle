@@ -316,18 +316,23 @@ public class AppListFragment extends Fragment {
 
     private void SortAppInfoAdapter() {
         // Sort array by date/name descending/ascending.
+        // FIX: Also compare that date or name can be the same. JR, 2016-01-13.
         mAppInfoAdapter.sort(new Comparator<AppInfo>() {
             public int compare(AppInfo app1, AppInfo app2) {
                 int comp;
 
                 if (mCurrentSort == 0) {
-                    if (app1.lastUpdateTime > app2.lastUpdateTime) {
+                    if (app1.lastUpdateTime == app2.lastUpdateTime) {
+                        comp = 0;
+                    } else if (app1.lastUpdateTime > app2.lastUpdateTime) {
                         comp = mCurrentSortDirection == 0 ? 1 : -1;
                     } else {
                         comp = mCurrentSortDirection == 0 ? -1 : 1;
                     }
                 } else {
-                    if (app1.name.compareToIgnoreCase(app2.name) > 0) {
+                    if (app1.name.compareToIgnoreCase(app2.name) == 0) {
+                        comp = 0;
+                    } else if (app1.name.compareToIgnoreCase(app2.name) > 0) {
                         comp = mCurrentSortDirection == 0 ? 1 : -1;
                     } else {
                         comp = mCurrentSortDirection == 0 ? -1 : 1;
