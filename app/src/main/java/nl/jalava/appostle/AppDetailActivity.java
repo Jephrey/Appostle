@@ -55,7 +55,7 @@ public class AppDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                onBackPressed();
+                finish(); // Bugfix 2.21 http://stackoverflow.com/questions/32382507/can-not-perform-this-action-after-onsaveinstancestate-on-super-onbackpressed
                 break;
             default:
                 return super.onOptionsItemSelected(item);
