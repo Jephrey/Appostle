@@ -13,7 +13,7 @@
         android:title="@string/menu_sort_order" />
     <item
         android:id="@+id/menu_search"
-        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+        android:icon="@android:drawable/ic_search_category_default"
         app:showAsAction="ifRoom|withText"
         android:title="@string/search_text" />
     <item

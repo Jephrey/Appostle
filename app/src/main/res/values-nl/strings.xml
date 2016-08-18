@@ -5,7 +5,7 @@
     <string name="whats_new">Wat is er nieuw</string>
     <string name="about">Over</string>
     <string name="about_license">Appostle is Open Source onder de Apache 2.0 licentie.</string>
-    <string name="about_me">©2013–2015 Jeffrey Rusterholz</string>
+    <string name="about_me">©2013–2016 Jeffrey Rusterholz</string>
     <string name="certificate_error">Fout bij ophalen certificaatinfo.\nMelding: </string>
     <string name="certificate_info" formatted="false">Certificaat voor: %s\n\nUitgegeven door: %s\n\nGeldig van %s t/m %s\n\nSerienr.:%s\n\nGegenereerd met %s.</string>
     <string name="certificate_title">Certificaatinfo</string>
@@ -25,4 +25,6 @@
     <string name="sort_title">Kies een sorteervolgorde</string>
     <string name="unable_to_download_text">* Tekst kon niet opgehaald worden *</string>
     <string name="search_text">Zoektekst</string>
+    <string name="app_updated">Bijgewerkt</string>
+    <string name="downloading_text">Tekst ophalen…</string>
 </resources>

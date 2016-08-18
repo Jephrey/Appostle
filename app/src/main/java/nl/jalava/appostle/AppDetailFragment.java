@@ -19,6 +19,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -221,8 +222,12 @@ public class AppDetailFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.setClickable(false);
+                v.setEnabled(false);
                 String store = "https://play.google.com/store/apps/details?id=" + package_name + "&hl=" + curLC;
                 new GetAppDescription().execute(store);
+                v.setEnabled(true);
+                v.setClickable(true);
             }
         });
 
@@ -243,6 +248,7 @@ public class AppDetailFragment extends Fragment {
      * Download the app description from the Play Store.
      */
     private class GetAppDescription extends AsyncTask<String, Void, String> {
+        ProgressDialog progressDialog;
 
         @Override
         protected String doInBackground(String... params) {
@@ -250,10 +256,21 @@ public class AppDetailFragment extends Fragment {
 
             try {
                 Document doc = Jsoup.connect(params[0]).get();
+
+                // Get update text.
                 Elements divs = doc.select("div.recent-change");
                 for (Element div : divs) {
                     buffer.append(div.text()).append('\n');
                 }
+                // Get updated data.
+                Elements updated = doc.select("[itemprop='datePublished']");
+                if (updated != null) {
+                    buffer.append("\n").append(getString(R.string.app_updated)).append(": ");
+                    for (Element upd : updated) {
+                        buffer.append(upd.text()).append('\n');
+                    }
+                }
+
             }  catch(Throwable t) {
                 t.printStackTrace();
                 buffer.append(getString(R.string.unable_to_download_text));
@@ -264,6 +281,7 @@ public class AppDetailFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            progressDialog.cancel();
 
             Builder builder = new AlertDialog.Builder(view.getContext());
             builder.setMessage(s)
@@ -276,6 +294,14 @@ public class AppDetailFragment extends Fragment {
             });
             AlertDialog dialog = builder.create();
             dialog.show();
+        }
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage(getString(R.string.downloading_text));
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
         }
     }
 
