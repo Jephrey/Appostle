@@ -86,7 +86,14 @@ class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
                             String right = app.name.substring(n + filter.length(), app.name.length());
 
                             // Highlight the found text. Use color from resource.
-                            int highlight = context.getResources().getColor(R.color.colorAccent);
+                            int highlight;
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                                highlight = context.getResources().getColor(R.color.colorAccent, null);
+                            } else {
+                                //noinspection deprecation
+                                highlight = context.getResources().getColor(R.color.colorAccent);
+                            }
+
                             String сolorString = String.format("%X", highlight).substring(2);
                             clone.name = left + String.format("<font color=\"#%s\">" + mid + "</font>", сolorString) + right;
 
@@ -133,9 +140,14 @@ class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
         }
 
         // App name, update date and version.
-        holder.info.setText(Html.fromHtml("<h3>" + app.name + "</h3>" +
-                "<h7>" + app.date + "</h7>"));
-        //"<h7>" + app.date + "\u00A0(" + app.version +")</h7>"));
+        String html = "<h3>" + app.name + "</h3>" + "<h7>" + app.date + "</h7>";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            holder.info.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            //noinspection deprecation
+            holder.info.setText(Html.fromHtml(html));
+        }
+
         try {
             app.icon = context.getPackageManager().getApplicationIcon(app.packageName);
         } catch (android.content.pm.PackageManager.NameNotFoundException e) {

@@ -64,7 +64,7 @@ public class AppListFragment extends Fragment {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private EditText mSearchText;
     private boolean mShowProgress;
-    private TextInputLayout mSearchEdit;
+    private RelativeLayout mSearchEdit;
 
     private ListView appList;
     private ProgressBar progress;
@@ -144,7 +144,7 @@ public class AppListFragment extends Fragment {
             }
         });
 
-        mSearchEdit = (TextInputLayout) view.findViewById(R.id.search_layout);
+        mSearchEdit = (RelativeLayout) view.findViewById(R.id.search_layout);
 
         // Restore the last visibility state of the text edit.
         if (mSearchEditOpen)
@@ -200,6 +200,16 @@ public class AppListFragment extends Fragment {
                 mSearchText.setText("");
             }
         });
+
+        // Close search.
+        Button close = (Button) view.findViewById(R.id.search_close_button);
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchEdit.setVisibility(View.GONE);
+                mSearchEditOpen = false;
+            }
+         });
 
         // Prevent always refreshing when pulling listview down.
         appList.setOnScrollListener(new AbsListView.OnScrollListener() {
