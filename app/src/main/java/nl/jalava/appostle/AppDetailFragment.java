@@ -239,7 +239,7 @@ public class AppDetailFragment extends Fragment {
                 "id=" + package_name +
                 "&hl=" + curLC));
         if (ChooseBrowser) {
-            browser = Intent.createChooser(browser, getActivity().getString(R.string.app_name));
+            browser = Intent.createChooser(browser, getActivity().getString(R.string.view_in_browser));
         }
         startActivity(browser);
      }

@@ -24,7 +24,7 @@
     <string name="menu_sort_order">Sorteervolgorde</string>
     <string name="sort_title">Kies een sorteervolgorde</string>
     <string name="unable_to_download_text">* Tekst kon niet opgehaald worden *</string>
-    <string name="search_text">Zoektekst</string>
     <string name="app_updated">Bijgewerkt</string>
     <string name="downloading_text">Tekst ophalen…</string>
+    <string name="search_text">Zoeken…</string>
 </resources>
