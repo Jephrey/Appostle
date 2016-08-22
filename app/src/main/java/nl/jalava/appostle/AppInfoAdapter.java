@@ -17,6 +17,7 @@ package nl.jalava.appostle;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -87,7 +88,7 @@ class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
 
                             // Highlight the found text. Use color from resource.
                             int highlight;
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 highlight = context.getResources().getColor(R.color.colorAccent, null);
                             } else {
                                 //noinspection deprecation
@@ -141,7 +142,7 @@ class AppInfoAdapter extends ArrayAdapter<AppInfo> implements Filterable {
 
         // App name, update date and version.
         String html = "<h3>" + app.name + "</h3>" + "<h7>" + app.date + "</h7>";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             holder.info.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
         } else {
             //noinspection deprecation

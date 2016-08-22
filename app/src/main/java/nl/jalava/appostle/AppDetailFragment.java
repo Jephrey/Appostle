@@ -343,7 +343,7 @@ public class AppDetailFragment extends Fragment {
         // Get the app icon. Try to get the hires one.
         Drawable d;
         Intent intent = pm.getLaunchIntentForPackage(app_package);
-        if ((Build.VERSION.SDK_INT > 11) && (intent != null)) {
+        if ((Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) && (intent != null)) {
             ResolveInfo resolveInfo = pm.resolveActivity(intent, 0);
             d = getAppIcon(resolveInfo);
         } else {
@@ -355,8 +355,14 @@ public class AppDetailFragment extends Fragment {
 
         // Get the app info.
         TextView name = (TextView) view.findViewById(R.id.detail_app_name);
-        name.setText(Html.fromHtml("<h3>" + pm.getApplicationLabel(ai) + "</h3>" +
-                "<h7>" + ai.packageName + "<br/>" + version + "<br/>" + app_date + "</h7>"));
+        String html = "<h3>" + pm.getApplicationLabel(ai) + "</h3>" +
+                "<h7>" + ai.packageName + "<br/>" + version + "<br/>" + app_date + "</h7>";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            name.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            //noinspection deprecation
+            name.setText(Html.fromHtml(html));
+        }
         scroll.setVisibility(View.VISIBLE);
     }
 
@@ -370,9 +376,10 @@ public class AppDetailFragment extends Fragment {
         try {
             ActivityManager activityManager = (ActivityManager) view.getContext().getSystemService(Context.ACTIVITY_SERVICE);
             int iconDpi = activityManager.getLauncherLargeIconDensity();
-            if (Build.VERSION.SDK_INT >= 22) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 d = resources.getDrawableForDensity(iconId, iconDpi, null);
             } else {
+                //noinspection deprecation
                 d = resources.getDrawableForDensity(iconId, iconDpi);
             }
         } catch (Resources.NotFoundException e) {
